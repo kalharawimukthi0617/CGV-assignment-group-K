@@ -11,9 +11,8 @@ class ShopBill:
         script, imagePath = argv
         self.imagePath = imagePath
         self.image = cv2.imread(imagePath)
-
-        self.convertTograyImage(self.image)
-        self.increaseContrast(self.gray_image) 
+        
+        self.processingImage() 
 
         #show the images
         plt.figure(figsize=(12, 6))
@@ -34,6 +33,10 @@ class ShopBill:
 
         plt.tight_layout()
         plt.show()
+
+    def processingImage(self):
+        self.convertTograyImage(self.image)
+        self.increaseContrast(self.gray_image) 
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
