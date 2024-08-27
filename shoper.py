@@ -8,6 +8,11 @@ class ShopBill:
 
     def __init__(self):
 
+        #Imgages
+        self.image = None
+        self.gray_image = None
+        self.contrast_image = None
+        self.clahe_image = None
 
         #load the image
         script, imagePath = argv
