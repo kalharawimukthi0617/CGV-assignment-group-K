@@ -60,12 +60,12 @@ class ShopBill:
     def showImages(self):
         plt.figure(figsize=(20, 10))
         images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image,self.sharpened_image, self.clahe_image]
+                  self.contrast_image,self.sharpened_image, self.clahe_image, self.opened_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE']
+        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE', 'Opened']
         
         for i in range(len(images)):
-            plt.subplot(2, 3, i+1)
+            plt.subplot(2, 4, i+1)
             plt.title(titles[i])
             if len(images[i].shape) == 3:
                 plt.imshow(cv2.cvtColor(images[i], cv2.COLOR_BGR2RGB))
