@@ -54,9 +54,9 @@ class ShopBill:
     def showImages(self):
         plt.figure(figsize=(20, 10))
         images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image, self.clahe_image]
+                  self.contrast_image,self.sharpened_image, self.clahe_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced', 'CLAHE']
+        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE']
         
         for i in range(len(images)):
             plt.subplot(2, 3, i+1)
