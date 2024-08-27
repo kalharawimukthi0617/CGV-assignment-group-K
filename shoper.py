@@ -37,12 +37,19 @@ class ShopBill:
     def processingImage(self):
         self.convertTograyImage(self.image)
         self.increaseContrast(self.gray_image) 
+        self.applyCLAHE(self.contrast_image)
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
+        
+    def applyCLAHE(self, img):
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        self.clahe_image = clahe.apply(img)
+        cv2.imwrite("clache.png",self.clahe_image)
 
 if __name__ == "__main__":
     ShopBill() 
+
