@@ -3,9 +3,11 @@ import cv2
 import numpy as np 
 import matplotlib.pyplot as plt
 
+
 class ShopBill:
 
     def __init__(self):
+
 
         #load the image
         script, imagePath = argv
@@ -16,21 +18,26 @@ class ShopBill:
 
         #show the images
         plt.figure(figsize=(12, 6))
-        plt.subplot(1, 3, 1)
+        plt.subplot(2, 3, 1)
         plt.title('Original Image')
         plt.imshow(self.image)
         plt.axis('off')
 
-        plt.subplot(1, 3, 2)
+        plt.subplot(2, 3, 2)
         plt.title('Grayscale Image')
         plt.imshow(self.gray_image, cmap='gray')  # Add cmap='gray' here
         plt.axis('off')
   
-        plt.subplot(1, 3, 2)
+        plt.subplot(2, 3, 3)
         plt.title('Contrast enhanced image')
         plt.imshow(self.contrast_image, cmap='gray')  # Add cmap='gray' here 
         plt.axis('off') 
-
+        
+        plt.subplot(2, 3, 4)
+        plt.title('CLAHE imgae')
+        plt.imshow(self.clahe_image, cmap='gray')  # Add cmap='gray' here 
+        plt.axis('off')
+        
         plt.tight_layout()
         plt.show()
 
@@ -52,4 +59,5 @@ class ShopBill:
 
 if __name__ == "__main__":
     ShopBill() 
+
 
