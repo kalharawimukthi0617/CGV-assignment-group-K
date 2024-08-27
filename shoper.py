@@ -49,10 +49,15 @@ class ShopBill:
     def processingImage(self):
         self.convertTograyImage(self.image)
         self.increaseContrast(self.gray_image) 
-        self.applyCLAHE(self.contrast_image)
+        self.getDeNoisedImage(self.contrast_image)
+        self.applyCLAHE(self.denoised_image)
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    def getDeNoisedImage(self, img):
+        #self.denoised_image = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
+        self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 0)
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
