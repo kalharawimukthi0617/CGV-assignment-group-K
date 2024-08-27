@@ -24,9 +24,11 @@ class ShopBill:
 
     def processingImage(self):
         self.convertTograyImage(self.image)
-        self.increaseContrast(self.gray_image) 
-        self.getDeNoisedImage(self.contrast_image)
-        self.applyCLAHE(self.denoised_image)
+        self.getDeNoisedImage(self.gray_image)
+        self.increaseContrast(self.denoised_image) 
+        self.applySharpening(self.contrast_image)
+        self.applyCLAHE(self.sharpened_image)
+
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -38,6 +40,11 @@ class ShopBill:
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
+
+    # Created a function to sharpen the image
+    def applySharpening(self, img):
+        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+        self.sharpened_image = cv2.filter2D(img, -1, kernel)
         
     def applyCLAHE(self, img):
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
@@ -47,9 +54,9 @@ class ShopBill:
     def showImages(self):
         plt.figure(figsize=(20, 10))
         images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image, self.clahe_image]
+                  self.contrast_image,self.sharpened_image, self.clahe_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced', 'CLAHE']
+        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE']
         
         for i in range(len(images)):
             plt.subplot(2, 3, i+1)
