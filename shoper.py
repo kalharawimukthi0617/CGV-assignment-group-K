@@ -28,7 +28,7 @@ class ShopBill:
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
         self.applyCLAHE(self.sharpened_image)
-        self.applyOpening(self.applyCLAHE)
+        self.applyOpening(self.clahe_image)
 
 
     def convertTograyImage(self, img):
