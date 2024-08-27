@@ -28,6 +28,7 @@ class ShopBill:
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
         self.applyCLAHE(self.sharpened_image)
+        self.applyOpening(self.applyCLAHE)
 
 
     def convertTograyImage(self, img):
@@ -49,6 +50,11 @@ class ShopBill:
     def applyCLAHE(self, img):
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
         self.clahe_image = clahe.apply(img)
+
+    #create a function to appllying opend image processing techniques for the final image
+    def applyOpening(self, img):
+        kernel = np.ones((2,2), np.uint8)  
+        self.opened_image = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
