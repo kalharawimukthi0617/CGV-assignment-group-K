@@ -2,6 +2,7 @@ from sys import argv
 import cv2
 import numpy as np 
 import pytesseract
+from PIL import Image
 import matplotlib.pyplot as plt
 
 
@@ -22,6 +23,7 @@ class ShopBill:
         
         self.processingImage() 
         self.showImages()
+        self.resizeImage()
         self.extract_text()
 
     #  ----------------------- image proccessing techniques -----------------------
@@ -80,8 +82,23 @@ class ShopBill:
         plt.show()
 
     #  ----------------------- Show Details on the bill  -----------------------
+    
+    ## Without reduce quality of the image, increase the size
+    def resizeImage(self, scale_factor=10, method='lanczos'):
+
+            # Get the current size (using OpenCV, not PIL)
+            height, width = self.opened_image.shape[:2]
+            
+            # Calculate the new size
+            new_width = int(width * scale_factor)
+            new_height = int(height * scale_factor)
+            
+            # Resize the image using OpenCV's resize function
+            self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
+            
+    ##Show bill details      
     def extract_text(self):
-            text = pytesseract.image_to_string(self.opened_image)
+            text = pytesseract.image_to_string(self.resized_img)
             print("Extracted Text:")
             print(text)
         
