@@ -29,10 +29,7 @@ class ShopBill:
         self.image = cv2.imread(imagePath)
         
         self.processingImage() 
-        self.resizeImage()
-        self.extract_text()
-        self.showTopSection()
-        self.showPriceTableDetails()
+        self.processingBillDetails()
         self.showImages()
 
 
@@ -44,6 +41,12 @@ class ShopBill:
         self.applySharpening(self.contrast_image)
         self.applyCLAHE(self.sharpened_image)
         self.applyOpening(self.clahe_image)
+
+    def processingBillDetails(self):
+        self.resizeImage()
+        self.extract_text()
+        self.showTopSection()
+        self.showPriceTableDetails()
 
 
     def convertTograyImage(self, img):
@@ -196,7 +199,7 @@ class ShopBill:
             # Print the bottom line
             print("-" * (name_max_len + qty_max_len + price_max_len + 8))
         except Exception as e:
-            print("exception is "+ e)
+            print("exception is " + str(e))
             
         
 if __name__ == "__main__":
