@@ -108,10 +108,14 @@ class ShopBill:
 
     #SHow the top section of the details clearly
     def showTopSection(self, num_lines=4):
-        top_section_lines = self.text.strip().split('\n')
+        #clean the empty lines
+        lines = self.text.split('\n')
+        non_empty_lines = [line for line in lines if line.strip() != '']
+        cleaned_text = '\n'.join(non_empty_lines)
+        # end the cleaning empty lines
         
+        top_section_lines = cleaned_text.strip().split('\n')
         top_section = top_section_lines[:num_lines]
-        
         max_length = max(len(line.strip()) for line in top_section)
         total_width = max_length + 6
         
