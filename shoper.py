@@ -21,7 +21,7 @@ class ShopBill:
         self.text = ""
 
         #data frame
-        self.df = None
+        # self.df = None
 
         #load the image
         script, imagePath = argv
@@ -46,8 +46,8 @@ class ShopBill:
         self.resizeImage()
         self.extract_text()
         self.showTopSection()
+        self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
-
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -160,21 +160,51 @@ class ShopBill:
         print(formatted_text)
 
     #this function used is used divide price details in to the name, qty, price
-    def dividedPriceDetailsIntoThreeParts(self) :
-        # Use regex to find patterns matching Name, Qty, and Total
-        lines = self.text.split('\n')
-        data = []
-        for line in lines:
-            # Improved regex pattern to capture possible variations in the text
-            match = re.match(r"([\w\s]+)\s+(\d+)\s+(\d+\.\d{2})", line.strip())
-            if match:
-                name = match.group(1).strip()
-                qty = int(match.group(2).strip())
-                price = float(match.group(3).strip())
-                data.append([name, qty, price])
+    # def dividedPriceDetailsIntoThreeParts(self) :
+    #     # Use regex to find patterns matching Name, Qty, and Total
+    #     lines = self.text.split('\n')
+    #     data = []
+    #     for line in lines:
+    #         # Improved regex pattern to capture possible variations in the text
+    #         match = re.match(r"([\w\s]+)\s+(\d+)\s+(\d+\.\d{2})", line.strip())
+    #         if match:
+    #             name = match.group(1).strip()
+    #             qty = int(match.group(2).strip())
+    #             price = float(match.group(3).strip())
+    #             data.append([name, qty, price])
         
-        # Create a DataFrame to store the extracted table data
-        self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
+    #     # Create a DataFrame to store the extracted table data
+    #     self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
+
+    def dividedPriceDetailsIntoThreeParts(self) :        
+        lines = self.text.split('\n')
+        table_data = []
+        
+        #divided price table to the name, qty, total
+        pattern = re.compile(r"([a-zA-Z\s]+)[\s’}]*([J\dP]?)\s*([\dA-Za-z]+[.,][0G]{2})")
+
+        for line in lines:
+
+            if "Sub Total" in line :
+                break
+
+            match = pattern.match(line)
+            if match:
+                name, qty, total = match.groups()
+                del total
+                total = line.split()[len(line.split())-1]
+
+                if qty == "" :
+                    words = name.split()
+                    qty = words[len(words)-1]
+                    # Remove the last word
+                    words.pop()
+                    name =  ' '.join(words)
+
+                table_data.append([name.strip(), qty, float(total)])
+
+        self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
+ 
 
     # details such as name, quantity, and price are displayed in a table
     def showPriceTableDetails(self):
@@ -183,23 +213,15 @@ class ShopBill:
             name_max_len = max(self.df['Name'].apply(len).max(), len('Name'))
             qty_max_len = max(self.df['Qty'].apply(lambda x: len(str(x))).max(), len('Qty'))
             price_max_len = max(self.df['Price'].apply(lambda x: len(f"{x:.2f}")).max(), len('Price'))
-
-            # Create a format string for each row
             row_format = f"| {{:<{name_max_len}}} | {{:>{qty_max_len}}} | {{:>{price_max_len}.2f}} |"
-
-            # Print header
-            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
+            print("+"+"-" * (name_max_len + qty_max_len + price_max_len + 8)+"+")
             print(f"| {'Name':<{name_max_len}} | {'Qty':>{qty_max_len}} | {'Price':>{price_max_len}} |")
-            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
-
-            # Print each row of the table
+            print("+"+"-" * (name_max_len + qty_max_len + price_max_len + 8)+"+")
             for index, row in self.df.iterrows():
                 print(row_format.format(row['Name'], row['Qty'], row['Price']))
-
-            # Print the bottom line
-            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
+            print("+"+"-" * (name_max_len + qty_max_len + price_max_len + 8)+"+")
         except Exception as e:
-            print("exception is " + str(e))
+            print("Exception is " + str(e))
             
         
 if __name__ == "__main__":
