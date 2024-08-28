@@ -1,6 +1,7 @@
 from sys import argv
 import cv2
 import numpy as np 
+import pytesseract
 import matplotlib.pyplot as plt
 
 
@@ -21,7 +22,9 @@ class ShopBill:
         
         self.processingImage() 
         self.showImages()
+        self.extract_text()
 
+    #  ----------------------- image proccessing techniques -----------------------
     def processingImage(self):
         self.convertTograyImage(self.image)
         self.getDeNoisedImage(self.gray_image)
@@ -76,6 +79,12 @@ class ShopBill:
         plt.tight_layout()
         plt.show()
 
+    #  ----------------------- Show Details on the bill  -----------------------
+    def extract_text(self):
+            text = pytesseract.image_to_string(self.opened_image)
+            print("Extracted Text:")
+            print(text)
+        
 if __name__ == "__main__":
     ShopBill() 
 
