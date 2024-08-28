@@ -5,7 +5,7 @@ import pytesseract
 from PIL import Image
 import matplotlib.pyplot as plt
 import re
-import pandas as pd
+import pandas as pd 
 
 class ShopBill:
 
@@ -48,6 +48,7 @@ class ShopBill:
         self.showTopSection()
         self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
+        self.showBottomSection() 
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -222,6 +223,25 @@ class ShopBill:
             print("+"+"-" * (name_max_len + qty_max_len + price_max_len + 8)+"+")
         except Exception as e:
             print("Exception is " + str(e))
+
+    def showBottomSection(self):
+        bottom_section = re.findall(r"(Sub Total|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
+        if bottom_section:
+            print("\n" + "=" * 40)
+            print("{:^40}".format("Receipt Summary"))
+            print("=" * 40)
+            
+            max_label_length = max(len(item[0]) for item in bottom_section)
+            for item in bottom_section:
+                label = item[0].ljust(max_label_length)
+                value = self.correctPrice(item[1])
+                print(f"  {label:<15} : {float(value):>10.2f}")
+            
+            print("=" * 40)
+            print("{:^40}".format("Thank You! Please Come Again"))
+            print("=" * 40)
+        else:
+            print("Bottom section not found.")
             
         
 if __name__ == "__main__":
