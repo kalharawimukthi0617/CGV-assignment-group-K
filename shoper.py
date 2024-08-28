@@ -32,6 +32,7 @@ class ShopBill:
         self.resizeImage()
         self.extract_text()
         self.showTopSection()
+        self.showPriceTableDetails()
         self.showImages()
 
 
@@ -172,6 +173,29 @@ class ShopBill:
         # Create a DataFrame to store the extracted table data
         self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
 
+    # details such as name, quantity, and price are displayed in a table
+    def showPriceTableDetails(self):
+            # Calculate the maximum lengths for each column
+            name_max_len = max(self.df['Name'].apply(len).max(), len('Name'))
+            qty_max_len = max(self.df['Qty'].apply(lambda x: len(str(x))).max(), len('Qty'))
+            price_max_len = max(self.df['Price'].apply(lambda x: len(f"{x:.2f}")).max(), len('Price'))
+
+            # Create a format string for each row
+            row_format = f"| {{:<{name_max_len}}} | {{:>{qty_max_len}}} | {{:>{price_max_len}.2f}} |"
+
+            # Print header
+            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
+            print(f"| {'Name':<{name_max_len}} | {'Qty':>{qty_max_len}} | {'Price':>{price_max_len}} |")
+            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
+
+            # Print each row of the table
+            for index, row in self.df.iterrows():
+                print(row_format.format(row['Name'], row['Qty'], row['Price']))
+
+            # Print the bottom line
+            print("-" * (name_max_len + qty_max_len + price_max_len + 8))
+        
+            
         
 if __name__ == "__main__":
     ShopBill() 
