@@ -175,6 +175,7 @@ class ShopBill:
 
     # details such as name, quantity, and price are displayed in a table
     def showPriceTableDetails(self):
+        try:
             # Calculate the maximum lengths for each column
             name_max_len = max(self.df['Name'].apply(len).max(), len('Name'))
             qty_max_len = max(self.df['Qty'].apply(lambda x: len(str(x))).max(), len('Qty'))
@@ -194,7 +195,8 @@ class ShopBill:
 
             # Print the bottom line
             print("-" * (name_max_len + qty_max_len + price_max_len + 8))
-        
+        except Exception as e:
+            print("exception is "+ e)
             
         
 if __name__ == "__main__":
