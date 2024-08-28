@@ -5,7 +5,6 @@ import pytesseract
 from PIL import Image
 import matplotlib.pyplot as plt
 
-
 class ShopBill:
 
     def __init__(self):
@@ -16,15 +15,20 @@ class ShopBill:
         self.contrast_image = None
         self.clahe_image = None
 
+        #text
+        self.text = ""
+
         #load the image
         script, imagePath = argv
         self.imagePath = imagePath
         self.image = cv2.imread(imagePath)
         
         self.processingImage() 
-        self.showImages()
         self.resizeImage()
         self.extract_text()
+        self.showTopSection()
+        # self.showImages()
+
 
     #  ----------------------- image proccessing techniques -----------------------
     def processingImage(self):
@@ -96,11 +100,30 @@ class ShopBill:
             # Resize the image using OpenCV's resize function
             self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
             
-    ##Show bill details      
+    #Show bill details      
     def extract_text(self):
-            text = pytesseract.image_to_string(self.resized_img)
+            self.text = pytesseract.image_to_string(self.resized_img)
             print("Extracted Text:")
-            print(text)
+            print(self.text)
+
+    #SHow the top section of the details clearly
+    def showTopSection(self, num_lines=4):
+        top_section_lines = self.text.strip().split('\n')
+        
+        top_section = top_section_lines[:num_lines]
+        
+        max_length = max(len(line.strip()) for line in top_section)
+        total_width = max_length + 6
+        
+        formatted_text = (
+            "\n" + "*" * total_width + "\n"
+            + "\n".join(line.strip().center(total_width) for line in top_section)
+            + "\n" + "*" * total_width + "\n"
+        )
+        
+        print("\nFormatted Top Section:")
+        print(formatted_text)
+         
         
 if __name__ == "__main__":
     ShopBill() 
