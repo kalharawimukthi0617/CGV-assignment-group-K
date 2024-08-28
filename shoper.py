@@ -4,6 +4,8 @@ import numpy as np
 import pytesseract
 from PIL import Image
 import matplotlib.pyplot as plt
+import re
+import pandas as pd
 
 class ShopBill:
 
@@ -18,6 +20,9 @@ class ShopBill:
         #text
         self.text = ""
 
+        #data frame
+        self.df = None
+
         #load the image
         script, imagePath = argv
         self.imagePath = imagePath
@@ -27,7 +32,7 @@ class ShopBill:
         self.resizeImage()
         self.extract_text()
         self.showTopSection()
-        # self.showImages()
+        self.showImages()
 
 
     #  ----------------------- image proccessing techniques -----------------------
@@ -64,6 +69,7 @@ class ShopBill:
     def applyOpening(self, img):
         kernel = np.ones((2,2), np.uint8)  
         self.opened_image = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+        cv2.imwrite("opened.png",self.opened_image)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
@@ -88,18 +94,39 @@ class ShopBill:
     #  ----------------------- Show Details on the bill  -----------------------
     
     ## Without reduce quality of the image, increase the size
-    def resizeImage(self, scale_factor=10, method='lanczos'):
+    # def resizeImage(self, scale_factor=10, method='lanczos'):
 
-            # Get the current size (using OpenCV, not PIL)
-            height, width = self.opened_image.shape[:2]
+    #         # Get the current size (using OpenCV, not PIL)
+    #         height, width = self.opened_image.shape[:2]
+            
+    #         # Calculate the new size
+    #         new_width = int(width * scale_factor)
+    #         new_height = int(height * scale_factor)
+            
+    #         # Resize the image using OpenCV's resize function
+    #         self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
+            
+    def resizeImage(self,scale_factor=10, method='lanczos'):
+        # Open the image
+        with Image.open("opened.png") as img:
+            # Get the current size
+            width, height = img.size
             
             # Calculate the new size
             new_width = int(width * scale_factor)
             new_height = int(height * scale_factor)
             
-            # Resize the image using OpenCV's resize function
-            self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
+            # Choose the resampling filter
+            if method == 'bicubic':
+                resample_filter = Image.BICUBIC
+            elif method == 'lanczos':
+                resample_filter = Image.LANCZOS
+            else:
+                resample_filter = Image.BILINEAR
             
+            # Resize the image
+            self.resized_img = img.resize((new_width, new_height), resample_filter)
+
     #Show bill details      
     def extract_text(self):
             self.text = pytesseract.image_to_string(self.resized_img)
@@ -127,7 +154,24 @@ class ShopBill:
         
         print("\nFormatted Top Section:")
         print(formatted_text)
-         
+
+    #this function used is used divide price details in to the name, qty, price
+    def dividedPriceDetailsIntoThreeParts(self) :
+        # Use regex to find patterns matching Name, Qty, and Total
+        lines = self.text.split('\n')
+        data = []
+        for line in lines:
+            # Improved regex pattern to capture possible variations in the text
+            match = re.match(r"([\w\s]+)\s+(\d+)\s+(\d+\.\d{2})", line.strip())
+            if match:
+                name = match.group(1).strip()
+                qty = int(match.group(2).strip())
+                price = float(match.group(3).strip())
+                data.append([name, qty, price])
+        
+        # Create a DataFrame to store the extracted table data
+        self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
+
         
 if __name__ == "__main__":
     ShopBill() 
