@@ -206,7 +206,7 @@ class ShopBill:
                     name =  ' '.join(words)
 
                 name = self.correctSpelling(name)
-                
+                qty = self.correctQty(qty)
                 table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
@@ -253,7 +253,12 @@ class ShopBill:
         words = text.split()
         corrected_words = [self.spell.correction(word) or word for word in words]
         return ' '.join(corrected_words)
-            
+
+    # Function to correct quantities of the products
+    def correctQty(self, text):
+        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
+        return qty_map.get(text, text)
+   
         
 if __name__ == "__main__":
     ShopBill() 
