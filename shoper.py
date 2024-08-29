@@ -6,10 +6,13 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import re
 import pandas as pd 
+from spellchecker import SpellChecker
 
 class ShopBill:
 
     def __init__(self):
+
+        self.spell = SpellChecker()
 
         #Images
         self.image = None
@@ -55,7 +58,6 @@ class ShopBill:
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
-        #self.denoised_image = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
         self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 0)
 
     def increaseContrast(self, img):
@@ -149,12 +151,12 @@ class ShopBill:
         top_section_lines = cleaned_text.strip().split('\n')
         top_section = top_section_lines[:num_lines]
         max_length = max(len(line.strip()) for line in top_section)
-        total_width = max_length + 6
+        price_width = max_length + 6
         
         formatted_text = (
-            "\n" + "*" * total_width + "\n"
-            + "\n".join(line.strip().center(total_width) for line in top_section)
-            + "\n" + "*" * total_width + "\n"
+            "\n" + "*" * price_width + "\n"
+            + "\n".join(line.strip().center(price_width) for line in top_section)
+            + "\n" + "*" * price_width + "\n"
         )
         
         print("\nFormatted Top Section:")
@@ -162,7 +164,7 @@ class ShopBill:
 
     #this function used is used divide price details in to the name, qty, price
     # def dividedPriceDetailsIntoThreeParts(self) :
-    #     # Use regex to find patterns matching Name, Qty, and Total
+    #     # Use regex to find patterns matching Name, Qty, and price
     #     lines = self.text.split('\n')
     #     data = []
     #     for line in lines:
@@ -181,19 +183,19 @@ class ShopBill:
         lines = self.text.split('\n')
         table_data = []
         
-        #divided price table to the name, qty, total
+        #divided price table to the name, qty, price
         pattern = re.compile(r"([a-zA-Z\s]+)[\s’}]*([J\dP]?)\s*([\dA-Za-z]+[.,][0G]{2})")
 
         for line in lines:
 
-            if "Sub Total" in line :
+            if "Sub price" in line :
                 break
 
             match = pattern.match(line)
             if match:
-                name, qty, total = match.groups()
-                del total
-                total = line.split()[len(line.split())-1]
+                name, qty, price = match.groups()
+                del price
+                price = line.split()[len(line.split())-1]
 
                 if qty == "" :
                     words = name.split()
@@ -202,7 +204,10 @@ class ShopBill:
                     words.pop()
                     name =  ' '.join(words)
 
-                table_data.append([name.strip(), qty, float(total)])
+                name = self.correctSpelling(name)
+                qty = self.correctQty(qty)
+                price = self.correctPrice(price)
+                table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
  
@@ -225,7 +230,7 @@ class ShopBill:
             print("Exception is " + str(e))
 
     def showBottomSection(self):
-        bottom_section = re.findall(r"(Sub Total|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
+        bottom_section = re.findall(r"(Sub price|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
         if bottom_section:
             print("\n" + "=" * 40)
             print("{:^40}".format("Receipt Summary"))
@@ -242,8 +247,26 @@ class ShopBill:
             print("=" * 40)
         else:
             print("Bottom section not found.")
-            
-        
+
+    # Function to correct spellings in receipts
+    def correctSpelling(self, text):
+        words = text.split()
+        corrected_words = [self.spell.correction(word) or word for word in words]
+        return ' '.join(corrected_words)
+
+    # Function to correct quantities of the products
+    def correctQty(self, text):
+        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
+        return qty_map.get(text, text)
+    
+    # Function to correct price of products
+    def correctPrice(self, text):
+        # Replace comma with dot for decimal point
+        corrected = text.replace(',', '.')
+        # Replace common OCR errors
+        corrected = corrected.replace('G', '0').replace('B', '8')
+        return corrected
+    
 if __name__ == "__main__":
     ShopBill() 
 
