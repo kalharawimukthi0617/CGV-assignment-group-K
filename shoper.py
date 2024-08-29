@@ -58,7 +58,6 @@ class ShopBill:
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
-        #self.denoised_image = cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
         self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 0)
 
     def increaseContrast(self, img):
@@ -207,7 +206,7 @@ class ShopBill:
 
                 name = self.correctSpelling(name)
                 qty = self.correctQty(qty)
-                total = self.correctPrice(total)
+                price = self.correctPrice(price)
                 table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
