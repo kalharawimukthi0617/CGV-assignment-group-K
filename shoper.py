@@ -207,6 +207,7 @@ class ShopBill:
 
                 name = self.correctSpelling(name)
                 qty = self.correctQty(qty)
+                total = self.correctPrice(total)
                 table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
@@ -258,8 +259,15 @@ class ShopBill:
     def correctQty(self, text):
         qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
         return qty_map.get(text, text)
-   
-        
+    
+    # Function to correct price of products
+    def correctPrice(self, text):
+        # Replace comma with dot for decimal point
+        corrected = text.replace(',', '.')
+        # Replace common OCR errors
+        corrected = corrected.replace('G', '0').replace('B', '8')
+        return corrected
+    
 if __name__ == "__main__":
     ShopBill() 
 
