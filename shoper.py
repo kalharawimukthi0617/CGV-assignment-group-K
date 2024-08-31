@@ -37,8 +37,10 @@ class ShopBill:
 
 
     #  ----------------------- image proccessing techniques -----------------------
+
     def processingImage(self):
-        self.convertTograyImage(self.image)
+        self.applyGamma(self.image)
+        self.convertTograyImage(self.gamma_image)
         self.getDeNoisedImage(self.gray_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
@@ -52,6 +54,14 @@ class ShopBill:
         self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
         self.showBottomSection() 
+
+    #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
+    #which can improve the contrast and make text more visible
+    def applyGamma(self, img, gamma=1.0):
+        invGamma = 1.0 / gamma
+        table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+        self.gamma_image = cv2.LUT(img, table)
+        cv2.imwrite("gamma.png", self.gamma_image)
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
