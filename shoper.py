@@ -24,7 +24,7 @@ class ShopBill:
         self.text = ""
 
         #data frame
-        # self.df = None
+        self.df = None
 
         #load the image
         script, imagePath = argv
@@ -78,11 +78,6 @@ class ShopBill:
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
 
-    #create a function to appllying opend image processing techniques for the final image
-    def applyOpening(self, img):
-        kernel = np.ones((2,2), np.uint8)  
-        self.opened_image = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-        cv2.imwrite("opened.png",self.opened_image)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
