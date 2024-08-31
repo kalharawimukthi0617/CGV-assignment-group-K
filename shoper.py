@@ -37,8 +37,10 @@ class ShopBill:
 
 
     #  ----------------------- image proccessing techniques -----------------------
+
     def processingImage(self):
-        self.convertTograyImage(self.image)
+        self.applyGamma(self.image)
+        self.convertTograyImage(self.gamma_image)
         self.getDeNoisedImage(self.gray_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
@@ -52,6 +54,14 @@ class ShopBill:
         self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
         self.showBottomSection() 
+
+    #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
+    #which can improve the contrast and make text more visible
+    def applyGamma(self, img, gamma=1.0):
+        invGamma = 1.0 / gamma
+        table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+        self.gamma_image = cv2.LUT(img, table)
+        cv2.imwrite("gamma.png", self.gamma_image)
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -68,9 +78,8 @@ class ShopBill:
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
         
-    def applyCLAHE(self, img):
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        self.clahe_image = clahe.apply(img)
+        
+
 
     #create a function to appllying opend image processing techniques for the final image
     def applyOpening(self, img):
@@ -81,10 +90,10 @@ class ShopBill:
     # Function to show all the images that used image processing concepts
     def showImages(self):
         plt.figure(figsize=(20, 10))
-        images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image,self.sharpened_image, self.clahe_image, self.opened_image]
+        images = [self.image, self.gamma_image, self.gray_image, self.denoised_image, 
+                  self.contrast_image,self.sharpened_image, self.opened_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE', 'Opened']
+        titles = ['Original','Gamma', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'Opened']
         
         for i in range(len(images)):
             plt.subplot(2, 4, i+1)
