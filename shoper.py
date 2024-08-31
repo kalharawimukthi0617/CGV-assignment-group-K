@@ -90,10 +90,10 @@ class ShopBill:
     # Function to show all the images that used image processing concepts
     def showImages(self):
         plt.figure(figsize=(20, 10))
-        images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image,self.sharpened_image, self.clahe_image, self.opened_image]
+        images = [self.image, self.gamma_image, self.gray_image, self.denoised_image, 
+                  self.contrast_image,self.sharpened_image, self.opened_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE', 'Opened']
+        titles = ['Original','Gamma', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'Opened']
         
         for i in range(len(images)):
             plt.subplot(2, 4, i+1)
