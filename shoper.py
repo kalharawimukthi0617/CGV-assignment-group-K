@@ -28,15 +28,16 @@ class ShopBill:
 
         #load the image
         script, imagePath = argv
-        self.imagePath = imagePath
-        self.image = cv2.imread(imagePath)
-        
+
+        self.loadImage(imagePath)
         self.processingImage() 
         self.processingBillDetails()
         self.showImages()
 
-
     #  ----------------------- image proccessing techniques -----------------------
+    def loadImage(self,imagePath) :
+        self.imagePath = imagePath
+        self.image = cv2.imread(imagePath)
 
     def processingImage(self):
         self.applyGamma(self.image)
@@ -44,7 +45,6 @@ class ShopBill:
         self.getDeNoisedImage(self.gray_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
-        self.applyCLAHE(self.sharpened_image)
         self.applyOpening(self.clahe_image)
 
     def processingBillDetails(self):
@@ -77,9 +77,6 @@ class ShopBill:
     def applySharpening(self, img):
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
-        
-        
-
 
     #create a function to appllying opend image processing techniques for the final image
     def applyOpening(self, img):
