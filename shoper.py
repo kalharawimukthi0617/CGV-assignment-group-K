@@ -68,9 +68,8 @@ class ShopBill:
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
         
-    def applyCLAHE(self, img):
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        self.clahe_image = clahe.apply(img)
+        
+
 
     #create a function to appllying opend image processing techniques for the final image
     def applyOpening(self, img):
