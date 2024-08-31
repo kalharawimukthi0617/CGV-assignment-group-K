@@ -136,7 +136,7 @@ class ShopBill:
 
     #Show bill details      
     def extract_text(self):
-            self.text = pytesseract.image_to_string(self.resized_img)
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1')
             print("Extracted Text:")
             print(self.text)
 
@@ -161,23 +161,6 @@ class ShopBill:
         
         print("\nFormatted Top Section:")
         print(formatted_text)
-
-    #this function used is used divide price details in to the name, qty, price
-    # def dividedPriceDetailsIntoThreeParts(self) :
-    #     # Use regex to find patterns matching Name, Qty, and price
-    #     lines = self.text.split('\n')
-    #     data = []
-    #     for line in lines:
-    #         # Improved regex pattern to capture possible variations in the text
-    #         match = re.match(r"([\w\s]+)\s+(\d+)\s+(\d+\.\d{2})", line.strip())
-    #         if match:
-    #             name = match.group(1).strip()
-    #             qty = int(match.group(2).strip())
-    #             price = float(match.group(3).strip())
-    #             data.append([name, qty, price])
-        
-    #     # Create a DataFrame to store the extracted table data
-    #     self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
 
     def dividedPriceDetailsIntoThreeParts(self) :        
         lines = self.text.split('\n')
