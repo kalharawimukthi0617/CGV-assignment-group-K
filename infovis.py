@@ -156,6 +156,30 @@ class Infovis:
 
         fig.show()
 
+    #visualize the catogery performance
+    def visualizeCategoryPerformance(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+        
+        if 'Category' not in all_data.columns:
+            all_data['Category'] = all_data['Name'].apply(lambda x: 'Category ' + x[0])  # Simplistic categorization
+
+        category_performance = all_data.groupby('Category').agg({
+            'Total': 'sum',
+            'Qty': 'sum',
+            'Name': 'nunique'
+        }).reset_index()
+        category_performance['AvgPricePerItem'] = category_performance['Total'] / category_performance['Qty']
+
+        fig = px.scatter(category_performance, x='Total', y='Qty', size='Name', color='AvgPricePerItem',
+                         hover_name='Category', size_max=60,
+                         labels={'Total': 'Total Sales ($)', 'Qty': 'Total Quantity Sold',
+                                 'Name': 'Number of Unique Products', 'AvgPricePerItem': 'Avg Price per Item ($)'},
+                         title='Category Performance Overview')
+
+        fig.update_layout(height=600, width=1000)
+        fig.show()
+
 if __name__ == "__main__":
     infovis = Infovis()
     
@@ -167,4 +191,5 @@ if __name__ == "__main__":
     
     infovis.visualizeAllData()
     infovis.visualizeProductTrends()
+    infovis.visualizeCategoryPerformance()
     
