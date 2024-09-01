@@ -81,7 +81,7 @@ class ShopBill:
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
-        self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 0)
+        self.denoised_image  = cv2.GaussianBlur(img, (3, 3), 0)
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
@@ -247,7 +247,7 @@ class ShopBill:
         # Replace comma with dot for decimal point
         corrected = text.replace(',', '.')
         # Replace common OCR errors
-        corrected = corrected.replace('G', '0').replace('B', '8')
+        corrected = corrected.replace('G', '0').replace('B', '8').replace('boor','beer')
         return corrected
     
 if __name__ == "__main__":
