@@ -172,7 +172,7 @@ class ShopBill:
 
         for line in lines:
 
-            if "Sub price" in line :
+            if "Sub Total" in line :
                 break
 
             match = pattern.match(line)
@@ -214,7 +214,7 @@ class ShopBill:
             print("Exception is " + str(e))
 
     def showBottomSection(self):
-        bottom_section = re.findall(r"(Sub price|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
+        bottom_section = re.findall(r"(Sub Total|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
         if bottom_section:
             print("\n" + "=" * 40)
             print("{:^40}".format("Receipt Summary"))
@@ -254,5 +254,4 @@ class ShopBill:
     
 if __name__ == "__main__":
     ShopBill() 
-
 
