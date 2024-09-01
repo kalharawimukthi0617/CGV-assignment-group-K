@@ -24,7 +24,7 @@ class ShopBill:
         self.text = ""
 
         #data frame
-        # self.df = None
+        self.df = None
 
         #load the image
         script, imagePath = argv
@@ -42,10 +42,10 @@ class ShopBill:
     def processingImage(self):
         self.applyGamma(self.image)
         self.convertTograyImage(self.gamma_image)
-        self.getDeNoisedImage(self.gray_image)
+        self.convertToDeBlur(self.gray_image)
+        self.getDeNoisedImage(self.deblur_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
-        self.applyOpening(self.clahe_image)
 
     def processingBillDetails(self):
         self.resizeImage()
@@ -61,10 +61,23 @@ class ShopBill:
         invGamma = 1.0 / gamma
         table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
         self.gamma_image = cv2.LUT(img, table)
-        cv2.imwrite("gamma.png", self.gamma_image)
 
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    #This function use to removing blur from the image
+    def convertToDeBlur(self,image):
+        kernel = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])  # Example kernel
+        K = 0.0005  # Noise-to-signal ratio
+
+        kernel = kernel.astype(np.float64)  # Convert kernel to float64
+        kernel /= np.sum(kernel)
+        dummy = np.copy(image)
+        dummy = np.fft.fft2(dummy)
+        kernel = np.fft.fft2(kernel, s=image.shape)
+        kernel = np.conj(kernel) / (np.abs(kernel) ** 2 + K)
+        self.deblur_image = dummy * kernel
+        self.deblur_image = np.abs(np.fft.ifft2(dummy))
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
@@ -77,20 +90,15 @@ class ShopBill:
     def applySharpening(self, img):
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
-
-    #create a function to appllying opend image processing techniques for the final image
-    def applyOpening(self, img):
-        kernel = np.ones((2,2), np.uint8)  
-        self.opened_image = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-        cv2.imwrite("opened.png",self.opened_image)
+        cv2.imwrite("shapen.png", self.sharpened_image)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
         plt.figure(figsize=(20, 10))
-        images = [self.image, self.gamma_image, self.gray_image, self.denoised_image, 
-                  self.contrast_image,self.sharpened_image, self.opened_image]
+        images = [self.image, self.gamma_image, self.gray_image, self.deblur_image, self.denoised_image, 
+                  self.contrast_image,self.sharpened_image]
         
-        titles = ['Original','Gamma', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'Opened']
+        titles = ['Original','Gamma', 'Grayscale', 'Deblur' , 'Denoised', 'Contrast Enhanced','Sharpen']
         
         for i in range(len(images)):
             plt.subplot(2, 4, i+1)
@@ -105,23 +113,10 @@ class ShopBill:
         plt.show()
 
     #  ----------------------- Show Details on the bill  -----------------------
-    
-    ## Without reduce quality of the image, increase the size
-    # def resizeImage(self, scale_factor=10, method='lanczos'):
-
-    #         # Get the current size (using OpenCV, not PIL)
-    #         height, width = self.opened_image.shape[:2]
-            
-    #         # Calculate the new size
-    #         new_width = int(width * scale_factor)
-    #         new_height = int(height * scale_factor)
-            
-    #         # Resize the image using OpenCV's resize function
-    #         self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
-            
+      
     def resizeImage(self,scale_factor=10, method='lanczos'):
         # Open the image
-        with Image.open("opened.png") as img:
+        with Image.open("shapen.png") as img:
             # Get the current size
             width, height = img.size
             
@@ -236,6 +231,7 @@ class ShopBill:
             print("=" * 40)
         else:
             print("Bottom section not found.")
+        cv2.imwrite("gamma.png", self.gamma_image)
 
     # Function to correct spellings in receipts
     def correctSpelling(self, text):
