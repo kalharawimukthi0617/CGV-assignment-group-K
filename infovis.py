@@ -29,3 +29,4 @@ class Infovis:
         self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.')
         print("\n")
         print(self.text)
+
