@@ -194,7 +194,6 @@ class ShopBill:
                 table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
- 
 
     # details such as name, quantity, and price are displayed in a table
     def showPriceTableDetails(self):
