@@ -126,6 +126,35 @@ class Infovis:
 
         fig.show()
 
+    #this is show visualize of the prducts
+    def visualizeProductTrends(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+
+        # Get top 5 products by total sales
+        top_products = all_data.groupby('Name')['Total'].sum().nlargest(5).index.tolist()
+
+        fig = go.Figure()
+
+        for product in top_products:
+            product_data = all_data[all_data['Name'] == product]
+            fig.add_trace(go.Scatter(
+                x=product_data['Receipt'],
+                y=product_data['Total'],
+                mode='lines+markers',
+                name=product
+            ))
+
+        fig.update_layout(
+            title="Top 5 Products: Sales Trends Across Receipts",
+            xaxis_title="Receipt",
+            yaxis_title="Total Sales ($)",
+            legend_title="Products",
+            height=600,
+            width=1000
+        )
+
+        fig.show()
 
 if __name__ == "__main__":
     infovis = Infovis()
@@ -137,4 +166,5 @@ if __name__ == "__main__":
     
     
     infovis.visualizeAllData()
+    infovis.visualizeProductTrends()
     
