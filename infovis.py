@@ -180,6 +180,54 @@ class Infovis:
         fig.update_layout(height=600, width=1000)
         fig.show()
 
+    #visualize the top products summary
+    def visualizeTopProductsSummary(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+
+        # Get top 5 products by total sales
+        top_products = all_data.groupby('Name')['Total'].sum().nlargest(5)
+        
+        fig = go.Figure()
+
+        # Add bar chart for total sales
+        fig.add_trace(go.Bar(
+            x=top_products.index,
+            y=top_products.values,
+            name='Total Sales',
+            marker_color='lightblue'
+        ))
+
+        # Add information about quantity sold and average price
+        for product in top_products.index:
+            product_data = all_data[all_data['Name'] == product]
+            qty_sold = product_data['Qty'].sum()
+            avg_price = product_data['Price'].mean()
+            
+            fig.add_annotation(
+                x=product,
+                y=top_products[product],
+                text=f"Qty: {qty_sold}<br>Avg Price: ${avg_price:.2f}",
+                showarrow=True,
+                arrowhead=4,
+                arrowsize=1,
+                arrowwidth=2,
+                arrowcolor="#636363",
+                ax=0,
+                ay=-40
+            )
+
+        fig.update_layout(
+            title='Top 5 Products Summary',
+            xaxis_title='Product Name',
+            yaxis_title='Total Sales ($)',
+            height=600,
+            width=1000,
+            showlegend=False
+        )
+
+        fig.show() 
+
 if __name__ == "__main__":
     infovis = Infovis()
     
