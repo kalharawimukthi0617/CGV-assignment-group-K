@@ -49,7 +49,7 @@ class ShopBill:
 
     def processingBillDetails(self):
         self.resizeImage()
-        self.extract_text()
+        self.extractText()
         self.showTopSection()
         self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
@@ -114,7 +114,7 @@ class ShopBill:
 
     #  ----------------------- Show Details on the bill  -----------------------
       
-    def resizeImage(self,scale_factor=10, method='lanczos'):
+    def resizeImage(self,scale_factor=6, method='lanczos'):
         # Open the image
         with Image.open("shapen.png") as img:
             # Get the current size
@@ -136,8 +136,8 @@ class ShopBill:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     #Show bill details      
-    def extract_text(self):
-            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1')
+    def extractText(self):
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.')
             print("Extracted Text:")
             print(self.text)
 
