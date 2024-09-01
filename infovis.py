@@ -226,7 +226,38 @@ class Infovis:
             showlegend=False
         )
 
-        fig.show() 
+        fig.show()
+
+    #visualize the sales performance gauge
+    def visualizeSalesPerformanceGauge(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+
+        total_sales = all_data['Total'].sum()
+        avg_sales_per_receipt = total_sales / len(self.receipt_names)
+        max_sales_receipt = all_data.groupby('Receipt')['Total'].sum().max()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Indicator(
+            mode="gauge+number+delta",
+            value=avg_sales_per_receipt,
+            title={'text': "Average Sales per Receipt"},
+            delta={'reference': max_sales_receipt, 'increasing': {'color': "green"}},
+            gauge={
+                'axis': {'range': [0, max_sales_receipt]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [0, max_sales_receipt/2], 'color': "lightgray"},
+                    {'range': [max_sales_receipt/2, max_sales_receipt], 'color': "gray"}
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': max_sales_receipt
+                }
+            }
+        ))
 
 if __name__ == "__main__":
     infovis = Infovis()
