@@ -34,7 +34,7 @@ class Infovis:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     def extractText(self):
-        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1')
+        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace(']','1') 
         print("\n")
         print(self.text)
 
@@ -180,6 +180,87 @@ class Infovis:
         fig.update_layout(height=600, width=1000)
         fig.show()
 
+    #visualize the top products summary
+    def visualizeTopProductsSummary(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+
+        # Get top 5 products by total sales
+        top_products = all_data.groupby('Name')['Total'].sum().nlargest(5)
+        
+        fig = go.Figure()
+
+        # Add bar chart for total sales
+        fig.add_trace(go.Bar(
+            x=top_products.index,
+            y=top_products.values,
+            name='Total Sales',
+            marker_color='lightblue'
+        ))
+
+        # Add information about quantity sold and average price
+        for product in top_products.index:
+            product_data = all_data[all_data['Name'] == product]
+            qty_sold = product_data['Qty'].sum()
+            avg_price = product_data['Price'].mean()
+            
+            fig.add_annotation(
+                x=product,
+                y=top_products[product],
+                text=f"Qty: {qty_sold}<br>Avg Price: ${avg_price:.2f}",
+                showarrow=True,
+                arrowhead=4,
+                arrowsize=1,
+                arrowwidth=2,
+                arrowcolor="#636363",
+                ax=0,
+                ay=-40
+            )
+
+        fig.update_layout(
+            title='Top 5 Products Summary',
+            xaxis_title='Product Name',
+            yaxis_title='Total Sales ($)',
+            height=600,
+            width=1000,
+            showlegend=False
+        )
+
+        fig.show()
+
+    #visualize the sales performance
+    def visualizeSalesPerformance(self):
+        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
+        all_data['Total'] = all_data['Qty'] * all_data['Price']
+
+        total_sales = all_data['Total'].sum()
+        avg_sales_per_receipt = total_sales / len(self.receipt_names)
+        max_sales_receipt = all_data.groupby('Receipt')['Total'].sum().max()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Indicator(
+            mode="gauge+number+delta",
+            value=avg_sales_per_receipt,
+            title={'text': "Average Sales per Receipt"},
+            delta={'reference': max_sales_receipt, 'increasing': {'color': "green"}},
+            gauge={
+                'axis': {'range': [0, max_sales_receipt]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [0, max_sales_receipt/2], 'color': "lightgray"},
+                    {'range': [max_sales_receipt/2, max_sales_receipt], 'color': "gray"}
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': max_sales_receipt
+                }
+            }
+        ))
+
+        fig.show() 
+
 if __name__ == "__main__":
     infovis = Infovis()
     
@@ -192,4 +273,6 @@ if __name__ == "__main__":
     infovis.visualizeAllData()
     infovis.visualizeProductTrends()
     infovis.visualizeCategoryPerformance()
+    infovis.visualizeTopProductsSummary()
+    infovis.visualizeSalesPerformance() 
     
