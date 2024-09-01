@@ -228,8 +228,8 @@ class Infovis:
 
         fig.show()
 
-    #visualize the sales performance gauge
-    def visualizeSalesPerformanceGauge(self):
+    #visualize the sales performance
+    def visualizeSalesPerformance(self):
         all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
         all_data['Total'] = all_data['Qty'] * all_data['Price']
 
@@ -271,4 +271,6 @@ if __name__ == "__main__":
     infovis.visualizeAllData()
     infovis.visualizeProductTrends()
     infovis.visualizeCategoryPerformance()
+    infovis.visualizeTopProductsSummary()
+    infovis.visualizeSalesPerformance()
     
