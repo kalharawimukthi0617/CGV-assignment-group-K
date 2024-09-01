@@ -58,7 +58,7 @@ class ShopBill:
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
-        self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 0)
+        self.denoised_image  = cv2.GaussianBlur(img, (3, 3), 0)
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
