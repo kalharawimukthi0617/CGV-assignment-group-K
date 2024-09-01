@@ -30,3 +30,37 @@ class Infovis:
         print("\n")
         print(self.text)
 
+
+    def dividedPriceDetailsIntoThreeParts(self):
+        lines = self.text.split('\n')
+        table_data = []
+        pattern = re.compile(r"([a-zA-Z\s]+)[\s'}]*([J\dP]?)\s*([\dA-Za-z]+[.,][0G]{2})")
+        for line in lines:
+            if "Sub Total" in line:
+                break
+            match = pattern.match(line)
+            if match:
+                name, qty, price = match.groups()
+                price = line.split()[-1]
+                if qty == "":
+                    words = name.split()
+                    qty = words[-1]
+                    name = ' '.join(words[:-1])
+                name = self.correctSpelling(name)
+                qty = self.correctQty(qty)
+                price = self.correctPrice(price)
+                table_data.append([name.strip(), int(qty), float(price)])
+        self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
+
+    def correctSpelling(self, text):
+        words = text.split()
+        corrected_words = [self.spell.correction(word) or word for word in words]
+        return ' '.join(corrected_words)
+
+    def correctQty(self, text):
+        qty_map = {'}': '1', '|': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
+        return qty_map.get(text, text)
+
+    def correctPrice(self, text):
+        corrected = text.replace(',', '.').replace('G', '0').replace('B', '8')
+        return corrected
