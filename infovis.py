@@ -34,7 +34,7 @@ class Infovis:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     def extractText(self):
-        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1')
+        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace(']','1') 
         print("\n")
         print(self.text)
 
@@ -259,6 +259,8 @@ class Infovis:
             }
         ))
 
+        fig.show() 
+
 if __name__ == "__main__":
     infovis = Infovis()
     
@@ -272,5 +274,5 @@ if __name__ == "__main__":
     infovis.visualizeProductTrends()
     infovis.visualizeCategoryPerformance()
     infovis.visualizeTopProductsSummary()
-    infovis.visualizeSalesPerformance()
+    infovis.visualizeSalesPerformance() 
     
