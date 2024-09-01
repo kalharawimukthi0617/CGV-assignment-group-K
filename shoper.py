@@ -114,7 +114,7 @@ class ShopBill:
 
     #  ----------------------- Show Details on the bill  -----------------------
       
-    def resizeImage(self,scale_factor=6, method='lanczos'):
+    def resizeImage(self,scale_factor=7, method='lanczos'):
         # Open the image
         with Image.open("shapen.png") as img:
             # Get the current size
@@ -137,7 +137,7 @@ class ShopBill:
 
     #Show bill details      
     def extractText(self):
-            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.')
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1')
             print("Extracted Text:")
             print(self.text)
 
@@ -230,7 +230,6 @@ class ShopBill:
             print("=" * 40)
         else:
             print("Bottom section not found.")
-        cv2.imwrite("gamma.png", self.gamma_image)
 
     # Function to correct spellings in receipts
     def correctSpelling(self, text):
@@ -240,7 +239,7 @@ class ShopBill:
 
     # Function to correct quantities of the products
     def correctQty(self, text):
-        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
+        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2', 'z':'2'}
         return qty_map.get(text, text)
     
     # Function to correct price of products
