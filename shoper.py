@@ -136,7 +136,7 @@ class ShopBill:
 
     #Show bill details      
     def extract_text(self):
-            self.text = pytesseract.image_to_string(self.resized_img)
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace('Boor','Beer')
             print("Extracted Text:")
             print(self.text)
 
@@ -264,7 +264,7 @@ class ShopBill:
         # Replace comma with dot for decimal point
         corrected = text.replace(',', '.')
         # Replace common OCR errors
-        corrected = corrected.replace('G', '0').replace('B', '8').replace('boor','beer')
+        corrected = corrected.replace('G', '0').replace('B', '8')
         return corrected
     
 if __name__ == "__main__":
