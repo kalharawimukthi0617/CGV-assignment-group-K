@@ -142,7 +142,7 @@ class ShopBill:
             print("Extracted Text:")
             print(self.text)
 
-    #SHow the top section of the details clearly
+    #Show the top section of the details clearly
     def showTopSection(self, num_lines=4):
         #clean the empty lines
         lines = self.text.split('\n')
@@ -213,6 +213,7 @@ class ShopBill:
         except Exception as e:
             print("Exception is " + str(e))
 
+    # Show the bottom section of the details 
     def showBottomSection(self):
         bottom_section = re.findall(r"(Sub Total|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
         if bottom_section:
