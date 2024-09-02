@@ -24,37 +24,60 @@ class ShopBill:
         self.text = ""
 
         #data frame
-        # self.df = None
+        self.df = None
 
         #load the image
         script, imagePath = argv
-        self.imagePath = imagePath
-        self.image = cv2.imread(imagePath)
-        
+
+        self.loadImage(imagePath)
         self.processingImage() 
         self.processingBillDetails()
         self.showImages()
 
-
     #  ----------------------- image proccessing techniques -----------------------
+    def loadImage(self,imagePath) :
+        self.imagePath = imagePath
+        self.image = cv2.imread(imagePath)
+
     def processingImage(self):
-        self.convertTograyImage(self.image)
-        self.getDeNoisedImage(self.gray_image)
+        self.applyGamma(self.image)
+        self.convertTograyImage(self.gamma_image)
+        self.convertToDeBlur(self.gray_image)
+        self.getDeNoisedImage(self.deblur_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
-        self.applyCLAHE(self.sharpened_image)
-        self.applyOpening(self.clahe_image)
 
     def processingBillDetails(self):
         self.resizeImage()
-        self.extract_text()
+        self.extractText()
         self.showTopSection()
         self.dividedPriceDetailsIntoThreeParts()
         self.showPriceTableDetails()
         self.showBottomSection() 
 
+    #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
+    #which can improve the contrast and make text more visible
+    def applyGamma(self, img, gamma=1.0):
+        invGamma = 1.0 / gamma
+        table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+        self.gamma_image = cv2.LUT(img, table)
+
     def convertTograyImage(self, img):
         self.gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    #This function use to removing blur from the image
+    def convertToDeBlur(self,image):
+        kernel = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])  # Example kernel
+        K = 0.0005  # Noise-to-signal ratio
+
+        kernel = kernel.astype(np.float64)  # Convert kernel to float64
+        kernel /= np.sum(kernel)
+        dummy = np.copy(image)
+        dummy = np.fft.fft2(dummy)
+        kernel = np.fft.fft2(kernel, s=image.shape)
+        kernel = np.conj(kernel) / (np.abs(kernel) ** 2 + K)
+        self.deblur_image = dummy * kernel
+        self.deblur_image = np.abs(np.fft.ifft2(dummy))
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
@@ -67,24 +90,15 @@ class ShopBill:
     def applySharpening(self, img):
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
-        
-    def applyCLAHE(self, img):
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        self.clahe_image = clahe.apply(img)
-
-    #create a function to appllying opend image processing techniques for the final image
-    def applyOpening(self, img):
-        kernel = np.ones((2,2), np.uint8)  
-        self.opened_image = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-        cv2.imwrite("opened.png",self.opened_image)
+        cv2.imwrite("shapen.png", self.sharpened_image)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
         plt.figure(figsize=(20, 10))
-        images = [self.image, self.gray_image, self.denoised_image, 
-                  self.contrast_image,self.sharpened_image, self.clahe_image, self.opened_image]
+        images = [self.image, self.gamma_image, self.gray_image, self.deblur_image, self.denoised_image, 
+                  self.contrast_image,self.sharpened_image]
         
-        titles = ['Original', 'Grayscale', 'Denoised', 'Contrast Enhanced','Sharpen', 'CLAHE', 'Opened']
+        titles = ['Original','Gamma', 'Grayscale', 'Deblur' , 'Denoised', 'Contrast Enhanced','Sharpen']
         
         for i in range(len(images)):
             plt.subplot(2, 4, i+1)
@@ -99,23 +113,10 @@ class ShopBill:
         plt.show()
 
     #  ----------------------- Show Details on the bill  -----------------------
-    
-    ## Without reduce quality of the image, increase the size
-    # def resizeImage(self, scale_factor=10, method='lanczos'):
-
-    #         # Get the current size (using OpenCV, not PIL)
-    #         height, width = self.opened_image.shape[:2]
-            
-    #         # Calculate the new size
-    #         new_width = int(width * scale_factor)
-    #         new_height = int(height * scale_factor)
-            
-    #         # Resize the image using OpenCV's resize function
-    #         self.resized_img = cv2.resize(self.opened_image, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
-            
-    def resizeImage(self,scale_factor=10, method='lanczos'):
+      
+    def resizeImage(self,scale_factor=7, method='lanczos'):
         # Open the image
-        with Image.open("opened.png") as img:
+        with Image.open("shapen.png") as img:
             # Get the current size
             width, height = img.size
             
@@ -162,23 +163,6 @@ class ShopBill:
         print("\nFormatted Top Section:")
         print(formatted_text)
 
-    #this function used is used divide price details in to the name, qty, price
-    # def dividedPriceDetailsIntoThreeParts(self) :
-    #     # Use regex to find patterns matching Name, Qty, and price
-    #     lines = self.text.split('\n')
-    #     data = []
-    #     for line in lines:
-    #         # Improved regex pattern to capture possible variations in the text
-    #         match = re.match(r"([\w\s]+)\s+(\d+)\s+(\d+\.\d{2})", line.strip())
-    #         if match:
-    #             name = match.group(1).strip()
-    #             qty = int(match.group(2).strip())
-    #             price = float(match.group(3).strip())
-    #             data.append([name, qty, price])
-        
-    #     # Create a DataFrame to store the extracted table data
-    #     self.df = pd.DataFrame(data, columns=['Name', 'Qty', 'Price'])
-
     def dividedPriceDetailsIntoThreeParts(self) :        
         lines = self.text.split('\n')
         table_data = []
@@ -188,7 +172,7 @@ class ShopBill:
 
         for line in lines:
 
-            if "Sub price" in line :
+            if "Sub Total" in line :
                 break
 
             match = pattern.match(line)
@@ -210,7 +194,6 @@ class ShopBill:
                 table_data.append([name.strip(), qty, float(price)])
 
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
- 
 
     # details such as name, quantity, and price are displayed in a table
     def showPriceTableDetails(self):
@@ -230,7 +213,7 @@ class ShopBill:
             print("Exception is " + str(e))
 
     def showBottomSection(self):
-        bottom_section = re.findall(r"(Sub price|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
+        bottom_section = re.findall(r"(Sub Total|Cash|Change)\s*[\$:]?\s*(\d+[.,]\d{2})", self.text, re.IGNORECASE)
         if bottom_section:
             print("\n" + "=" * 40)
             print("{:^40}".format("Receipt Summary"))
@@ -256,7 +239,7 @@ class ShopBill:
 
     # Function to correct quantities of the products
     def correctQty(self, text):
-        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2'}
+        qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2', 'z':'2'}
         return qty_map.get(text, text)
     
     # Function to correct price of products
@@ -269,5 +252,4 @@ class ShopBill:
     
 if __name__ == "__main__":
     ShopBill() 
-
 
