@@ -34,7 +34,7 @@ class Infovis:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     def extractText(self):
-        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace(']','1') 
+        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace(']','1').replace('Boor','Beer')  
         print("\n")
         print(self.text)
 
@@ -125,6 +125,33 @@ class Infovis:
         fig.update_yaxes(title_text="Quantity", row=2, col=2)
 
         fig.show()
+
+    # Visualize all the receipt details
+    def visualizeReceiptDetails(self):
+        for i, df in enumerate(self.all_receipts):
+            df['Total'] = df['Qty'] * df['Price']
+            
+            fig = make_subplots(rows=1, cols=2, specs=[[{"type": "bar"}, {"type": "pie"}]],
+                                subplot_titles=("Product Sales", "Quantity Distribution"))
+
+            # Bar chart for product sales
+            fig.add_trace(
+                go.Bar(x=df['Name'], y=df['Total'], name="Total Sales"),
+                row=1, col=1
+            )
+
+            # Pie chart for quantity distribution
+            fig.add_trace(
+                go.Pie(labels=df['Name'], values=df['Qty'], name="Quantity"),
+                row=1, col=2
+            )
+
+            fig.update_layout(height=500, width=1000, 
+                              title_text=f"Receipt Details: {self.receipt_names[i]}")
+            fig.update_xaxes(title_text="Product", row=1, col=1)
+            fig.update_yaxes(title_text="Total Sales ($)", row=1, col=1)
+
+            fig.show()
 
     #this is show visualize of the prducts
     def visualizeProductTrends(self):
