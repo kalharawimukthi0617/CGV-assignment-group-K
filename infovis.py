@@ -34,8 +34,8 @@ class Infovis:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     def extractText(self):
-        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace(']','1').replace('Boor','Beer')  
-        print("\n")
+        self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace(']','1').replace('}','1').replace('Boor','Beer')
+        print("Extracted Text:")
         print(self.text)
 
 
@@ -60,17 +60,24 @@ class Infovis:
                 table_data.append([name.strip(), int(qty), float(price)])
         self.df = pd.DataFrame(table_data, columns=['Name', 'Qty', 'Price'])
 
+
+    # Function to correct spellings in receipts
     def correctSpelling(self, text):
         words = text.split()
         corrected_words = [self.spell.correction(word) or word for word in words]
         return ' '.join(corrected_words)
 
+    # Function to correct quantities of the products
     def correctQty(self, text):
         qty_map = {'}': '1', 'J': '1', 'j': '1', 'P': '2', 'p': '2', 'z':'2'}
         return qty_map.get(text, text)
-
+    
+    # Function to correct price of products
     def correctPrice(self, text):
-        corrected = text.replace(',', '.').replace('G', '0').replace('B', '8')
+        # Replace comma with dot for decimal point
+        corrected = text.replace(',', '.')
+        # Replace common OCR errors
+        corrected = corrected.replace('G', '0').replace('B', '8')
         return corrected
 
     #visual all the data in dash board
@@ -286,18 +293,33 @@ class Infovis:
             }
         ))
 
-        fig.show() 
+        fig.update_layout(
+            title='Sales Performance Gauge',
+            height=500,
+            width=800
+        )
+
+        # Add annotations with additional information
+        fig.add_annotation(
+            x=0.5, y=-0.1,
+            text=f"Total Sales: ${total_sales:.2f}<br>Number of Receipts: {len(self.receipt_names)}<br>Highest Sales in a Receipt: ${max_sales_receipt:.2f}",
+            showarrow=False,
+            xref='paper', yref='paper',
+            align='center'
+        )
+
+        fig.show()
 
 if __name__ == "__main__":
     infovis = Infovis()
     
     # Process multiple receipts
-    receipt_images = ["shapen1.png", "shapen2.png"]  # Add more receipt image paths as needed
+    receipt_images = ["receipt1.png", "receipt2.png"]  # Add more receipt image paths as needed
     for image_path in receipt_images:
         infovis.process_receipt(image_path)
     
-    
     infovis.visualizeAllData()
+    infovis.visualizeReceiptDetails()
     infovis.visualizeProductTrends()
     infovis.visualizeCategoryPerformance()
     infovis.visualizeTopProductsSummary()

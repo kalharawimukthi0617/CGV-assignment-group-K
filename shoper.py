@@ -57,7 +57,7 @@ class ShopBill:
 
     #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
     #which can improve the contrast and make text more visible
-    def applyGamma(self, img, gamma=1.0):
+    def applyGamma(self, img, gamma=1.5):
         invGamma = 1.0 / gamma
         table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
         self.gamma_image = cv2.LUT(img, table)
@@ -81,7 +81,8 @@ class ShopBill:
 
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
-        self.denoised_image  = cv2.GaussianBlur(img, (3, 3), 0)
+
+        self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 1)
 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
@@ -90,7 +91,7 @@ class ShopBill:
     def applySharpening(self, img):
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.sharpened_image = cv2.filter2D(img, -1, kernel)
-        cv2.imwrite("shapen.png", self.sharpened_image)
+        cv2.imwrite("receipt.png", self.sharpened_image)
 
     # Function to show all the images that used image processing concepts
     def showImages(self):
@@ -116,7 +117,7 @@ class ShopBill:
       
     def resizeImage(self,scale_factor=7, method='lanczos'):
         # Open the image
-        with Image.open("shapen.png") as img:
+        with Image.open("receipt.png") as img:
             # Get the current size
             width, height = img.size
             
@@ -137,7 +138,7 @@ class ShopBill:
 
     #Show bill details      
     def extractText(self):
-            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1').replace('Boor','Beer')
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace(']','1').replace('}','1').replace('Boor','Beer')
             print("Extracted Text:")
             print(self.text)
 
