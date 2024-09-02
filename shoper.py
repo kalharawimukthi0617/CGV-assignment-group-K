@@ -135,7 +135,7 @@ class ShopBill:
             self.resized_img = img.resize((new_width, new_height), resample_filter)
 
     #Show bill details      
-    def extract_text(self):
+    def extractText(self):
             self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('}','1')
             print("Extracted Text:")
             print(self.text)
