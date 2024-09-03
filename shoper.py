@@ -83,7 +83,8 @@ class ShopBill:
     def getDeNoisedImage(self, img):
 
         self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 1)
-
+    
+    # Create a function to adjusts the contrast of the image 
     def increaseContrast(self, img):
         self.contrast_image = cv2.addWeighted(img, 1.5, np.zeros(img.shape, img.dtype), 0, -50)
 
