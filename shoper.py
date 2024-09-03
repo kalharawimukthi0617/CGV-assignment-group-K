@@ -168,7 +168,7 @@ class ShopBill:
         lines = self.text.split('\n')
         table_data = []
         
-        #divided price table to the name, qty, price
+        #divided price table to the name, qty, price and also filter the price details from the text
         pattern = re.compile(r"([a-zA-Z\s]+)[\s’}]*([J\dP]?)\s*([\dA-Za-z]+[.,][0G]{2})")
 
         for line in lines:
