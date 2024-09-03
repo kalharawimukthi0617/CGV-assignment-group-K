@@ -67,7 +67,7 @@ class ShopBill:
 
     #This function use to removing blur from the image
     def convertToDeBlur(self,image):
-        kernel = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])  # Example kernel
+        kernel = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]])  # kernel for the deblurring
         K = 0.0005  # Noise-to-signal ratio
 
         kernel = kernel.astype(np.float64)  # Convert kernel to float64
