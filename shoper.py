@@ -226,7 +226,7 @@ class ShopBill:
             for item in bottom_section:
                 label = item[0].ljust(max_label_length)
                 value = self.correctPrice(item[1])
-                print(f"  {label:<15} : {float(value):>10.2f}")
+                print(f"  {label:<15} : {float(value):>10.2f}") 
             
             print("=" * 40)
             print("{:^40}".format("Thank You! Please Come Again"))
