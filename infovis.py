@@ -24,6 +24,14 @@ class Infovis:
         self.all_receipts.append(self.df)
         self.receipt_names.append(image_path.split('/')[-1].split('.')[0])  # Store receipt name without extension
 
+    def visualizeData(self) :
+        self.visualizeAllData()
+        self.visualizeReceiptDetails()
+        self.visualizeProductTrends()
+        self.visualizeCategoryPerformance()
+        self.visualizeTopProductsSummary()
+        self.visualizeSalesPerformance() 
+
 
     def resizeImage(self, image_path, scale_factor=7, method='lanczos'):
         with Image.open(image_path) as img:
@@ -125,9 +133,9 @@ class Infovis:
 
         # Update layout
         fig.update_layout(height=900, width=1200, title_text="Sales Data Overview", showlegend=True)
-        fig.update_xaxes(title_text="Total Sales ($)", row=1, col=1)
+        fig.update_xaxes(title_text="Total Sales (Rs)", row=1, col=1)
         fig.update_xaxes(title_text="Quantity", row=2, col=1)
-        fig.update_xaxes(title_text="Price ($)", row=2, col=2)
+        fig.update_xaxes(title_text="Price (Rs)", row=2, col=2)
         fig.update_yaxes(title_text="Product", row=2, col=1)
         fig.update_yaxes(title_text="Quantity", row=2, col=2)
 
@@ -156,7 +164,7 @@ class Infovis:
             fig.update_layout(height=500, width=1000, 
                               title_text=f"Receipt Details: {self.receipt_names[i]}")
             fig.update_xaxes(title_text="Product", row=1, col=1)
-            fig.update_yaxes(title_text="Total Sales ($)", row=1, col=1)
+            fig.update_yaxes(title_text="Total Sales (Rs)", row=1, col=1)
 
             fig.show()
 
@@ -182,7 +190,7 @@ class Infovis:
         fig.update_layout(
             title="Top 5 Products: Sales Trends Across Receipts",
             xaxis_title="Receipt",
-            yaxis_title="Total Sales ($)",
+            yaxis_title="Total Sales (Rs)",
             legend_title="Products",
             height=600,
             width=1000
@@ -207,8 +215,8 @@ class Infovis:
 
         fig = px.scatter(category_performance, x='Total', y='Qty', size='Name', color='AvgPricePerItem',
                          hover_name='Category', size_max=60,
-                         labels={'Total': 'Total Sales ($)', 'Qty': 'Total Quantity Sold',
-                                 'Name': 'Number of Unique Products', 'AvgPricePerItem': 'Avg Price per Item ($)'},
+                         labels={'Total': 'Total Sales (Rs)', 'Qty': 'Total Quantity Sold',
+                                 'Name': 'Number of Unique Products', 'AvgPricePerItem': 'Avg Price per Item (Rs)'},
                          title='Category Performance Overview')
 
         fig.update_layout(height=600, width=1000)
@@ -241,7 +249,7 @@ class Infovis:
             fig.add_annotation(
                 x=product,
                 y=top_products[product],
-                text=f"Qty: {qty_sold}<br>Avg Price: ${avg_price:.2f}",
+                text=f"Qty: {qty_sold}<br>Avg Price: Rs{avg_price:.2f}",
                 showarrow=True,
                 arrowhead=4,
                 arrowsize=1,
@@ -254,7 +262,7 @@ class Infovis:
         fig.update_layout(
             title='Top 5 Products Summary',
             xaxis_title='Product Name',
-            yaxis_title='Total Sales ($)',
+            yaxis_title='Total Sales (Rs)',
             height=600,
             width=1000,
             showlegend=False
@@ -302,7 +310,7 @@ class Infovis:
         # Add annotations with additional information
         fig.add_annotation(
             x=0.5, y=-0.1,
-            text=f"Total Sales: ${total_sales:.2f}<br>Number of Receipts: {len(self.receipt_names)}<br>Highest Sales in a Receipt: ${max_sales_receipt:.2f}",
+            text=f"Total Sales: Rs{total_sales:.2f}<br>Number of Receipts: {len(self.receipt_names)}<br>Highest Sales in a Receipt: Rs{max_sales_receipt:.2f}",
             showarrow=False,
             xref='paper', yref='paper',
             align='center'
@@ -318,10 +326,5 @@ if __name__ == "__main__":
     for image_path in receipt_images:
         infovis.process_receipt(image_path)
     
-    infovis.visualizeAllData()
-    infovis.visualizeReceiptDetails()
-    infovis.visualizeProductTrends()
-    infovis.visualizeCategoryPerformance()
-    infovis.visualizeTopProductsSummary()
-    infovis.visualizeSalesPerformance() 
-    
+    #Show all the 6 data visualizations
+    infovis.visualizeData()
