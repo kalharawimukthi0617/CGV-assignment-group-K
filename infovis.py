@@ -7,7 +7,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
 class Infovis:
     def __init__(self):
         self.spell = SpellChecker()
@@ -28,7 +27,7 @@ class Infovis:
         self.visualizeAllData()
         self.visualizeReceiptDetails()
         self.visualizeProductTrends()
-        self.visualizeCategoryPerformance()
+        self.visualizeReceiptComparison()
         self.visualizeTopProductsSummary()
         self.visualizeSalesPerformance() 
 
@@ -198,29 +197,37 @@ class Infovis:
 
         fig.show()
 
-    #visualize the catogery performance
-    def visualizeCategoryPerformance(self):
-        all_data = pd.concat(self.all_receipts, keys=self.receipt_names, names=['Receipt', 'Index']).reset_index()
-        all_data['Total'] = all_data['Qty'] * all_data['Price']
+    #this method show the comparison between the receipts
+    def visualizeReceiptComparison(self):
+        receipt_summaries = []
+        for receipt, df in zip(self.receipt_names, self.all_receipts):
+            summary = df.agg({
+                'Qty': 'sum',
+                'Price': 'mean',
+                'Name': 'nunique'
+            }).add_prefix('Total_')
+            summary['Receipt'] = receipt
+            summary['Total_Sales'] = (df['Qty'] * df['Price']).sum()
+            receipt_summaries.append(summary)
         
-        if 'Category' not in all_data.columns:
-            all_data['Category'] = all_data['Name'].apply(lambda x: 'Category ' + x[0])  # Simplistic categorization
-
-        category_performance = all_data.groupby('Category').agg({
-            'Total': 'sum',
-            'Qty': 'sum',
-            'Name': 'nunique'
-        }).reset_index()
-        category_performance['AvgPricePerItem'] = category_performance['Total'] / category_performance['Qty']
-
-        fig = px.scatter(category_performance, x='Total', y='Qty', size='Name', color='AvgPricePerItem',
-                         hover_name='Category', size_max=60,
-                         labels={'Total': 'Total Sales (Rs)', 'Qty': 'Total Quantity Sold',
-                                 'Name': 'Number of Unique Products', 'AvgPricePerItem': 'Avg Price per Item (Rs)'},
-                         title='Category Performance Overview')
-
-        fig.update_layout(height=600, width=1000)
+        comparison_df = pd.DataFrame(receipt_summaries)
+        
+        fig = make_subplots(rows=2, cols=2, 
+                            subplot_titles=("Total Sales", "Total Quantity", 
+                                            "Average Price", "Unique Products"))
+        
+        fig.add_trace(go.Bar(x=comparison_df['Receipt'], y=comparison_df['Total_Sales'], name='Total Sales'),
+                      row=1, col=1)
+        fig.add_trace(go.Bar(x=comparison_df['Receipt'], y=comparison_df['Total_Qty'], name='Total Quantity'),
+                      row=1, col=2)
+        fig.add_trace(go.Bar(x=comparison_df['Receipt'], y=comparison_df['Total_Price'], name='Average Price'),
+                      row=2, col=1)
+        fig.add_trace(go.Bar(x=comparison_df['Receipt'], y=comparison_df['Total_Name'], name='Unique Products'),
+                      row=2, col=2)
+        
+        fig.update_layout(height=800, width=1000, title_text="Receipt Comparison")
         fig.show()
+
 
     #visualize the top products summary
     def visualizeTopProductsSummary(self):
