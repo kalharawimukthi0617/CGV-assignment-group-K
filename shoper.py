@@ -176,6 +176,10 @@ class ShopBill:
 
             if "Sub Total" in line :
                 break
+            elif "Cash" in line :
+                break
+            elif "Change" in line :
+                break
 
             match = pattern.match(line)
             if match:
