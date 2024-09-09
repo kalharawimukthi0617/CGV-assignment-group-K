@@ -57,7 +57,7 @@ class ShopBill:
 
     #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
     #which can improve the contrast and make text more visible
-    def applyGamma(self, img, gamma=1.5):
+    def applyGamma(self, img, gamma=1.0):
         invGamma = 1.0 / gamma
         table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
         self.gamma_image = cv2.LUT(img, table)
@@ -139,7 +139,8 @@ class ShopBill:
 
     #Show bill details      
     def extractText(self):
-            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace('“','4').replace(']','1').replace('}','1').replace('.O0','.00').replace('Boor','Beer').replace('Cath','Cash').replace('Chango','Change').replace('CO','6.00').replace('a)','')
+            
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace(']','1').replace('}','1').replace('»','1').replace('>1','3').replace('£','8').replace('00','.00').replace('.O0','.00').replace('OO','.00').replace('°0','.00').replace('S.00','5.00').replace('Boor','Beer').replace('Cath','Cash').replace('Chango','Change').replace('CO','6.00').replace('WO','10.00').replace('4co','4.00').replace('a)','').replace('a2? ','').replace('>','').replace('<','').replace('Cav','Cash').replace('Chucoe','Change').replace('..','.')
             print("Extracted Text:")
             print(self.text)
 
