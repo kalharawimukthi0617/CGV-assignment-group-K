@@ -40,9 +40,9 @@ class ShopBill:
         self.image = cv2.imread(imagePath)
 
     def processingImage(self):
-        self.applyGamma(self.image)
-        self.convertTograyImage(self.gamma_image)
-        self.convertToDeBlur(self.gray_image)
+        self.convertTograyImage(self.image)
+        self.applyGamma(self.gray_image)
+        self.convertToDeBlur(self.gamma_image)
         self.getDeNoisedImage(self.deblur_image)
         self.increaseContrast(self.denoised_image) 
         self.applySharpening(self.contrast_image)
@@ -57,7 +57,7 @@ class ShopBill:
 
     #Gamma correction adjusts the overall brightness of the image, which can help in bringing out details in darker or lighter areas of the image.
     #which can improve the contrast and make text more visible
-    def applyGamma(self, img, gamma=1.5):
+    def applyGamma(self, img, gamma=1.0):
         invGamma = 1.0 / gamma
         table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
         self.gamma_image = cv2.LUT(img, table)
@@ -82,7 +82,7 @@ class ShopBill:
     # Function to remove noise from a image
     def getDeNoisedImage(self, img):
 
-        self.denoised_image  = cv2.GaussianBlur(img, (5, 5), 1)
+        self.denoised_image  = cv2.GaussianBlur(img, (3, 3), 1)
     
     # Create a function to adjusts the contrast of the image 
     def increaseContrast(self, img):
@@ -97,10 +97,10 @@ class ShopBill:
     # Function to show all the images that used image processing concepts
     def showImages(self):
         plt.figure(figsize=(20, 10))
-        images = [self.image, self.gamma_image, self.gray_image, self.deblur_image, self.denoised_image, 
+        images = [self.image, self.gray_image,self.gamma_image,self.deblur_image, self.denoised_image, 
                   self.contrast_image,self.sharpened_image]
         
-        titles = ['Original','Gamma', 'Grayscale', 'Deblur' , 'Denoised', 'Contrast Enhanced','Sharpen']
+        titles = ['Original', 'Grayscale','Gamma', 'Deblur' , 'Denoised', 'Contrast Enhanced','Sharpen']
         
         for i in range(len(images)):
             plt.subplot(2, 4, i+1)
@@ -116,7 +116,7 @@ class ShopBill:
 
     #  ----------------------- Show Details on the bill  -----------------------
       
-    def resizeImage(self,scale_factor=7, method='lanczos'):
+    def resizeImage(self,scale_factor=9, method='lanczos'):
         # Open the image
         with Image.open("receipt.png") as img:
             # Get the current size
@@ -139,7 +139,8 @@ class ShopBill:
 
     #Show bill details      
     def extractText(self):
-            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace(']','1').replace('}','1').replace('Boor','Beer')
+            
+            self.text = pytesseract.image_to_string(self.resized_img).replace('|','1').replace(',','.').replace(']','1').replace('}','1').replace('»','1').replace('>1','3').replace('£','8').replace('00','.00').replace('.O0','.00').replace('OO','.00').replace('°0','.00').replace('S.00','5.00').replace('Boor','Beer').replace('Cath','Cash').replace('Chango','Change').replace('CO','6.00').replace('WO','10.00').replace('4co','4.00').replace('a)','').replace('a2? ','').replace('>','').replace('<','').replace('Cav','Cash').replace('Chucoe','Change').replace('..','.')
             print("Extracted Text:")
             print(self.text)
 
