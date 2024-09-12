@@ -44,7 +44,7 @@ This repository contains two Python scripts:
   3. Install Tesseract OCR:
      Tesseract is required for OCR (Optical Character Recognition).
      - For Windows,
-     Download the installer from [Tesseract OCR Windows](https://github.com/tesseract-ocr/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki)).
+     Download the installer from [Tesseract OCR Windows](https://github.com/tesseract-ocr/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki).
      - For Ubuntu:
        ```bash
           sudo apt install tesseract-ocr
