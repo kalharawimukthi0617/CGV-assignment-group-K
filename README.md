@@ -21,3 +21,19 @@ This repository contains two Python scripts:
 ### Data Visualization (infovis.py)
 - Reads multiple processed receipts and extracts information into a DataFrame.
 - Visualizes various sales-related metrics:
+
+## Installation
+
+1. Clone the repository:
+```bash
+  git clone https://github.com/kalharawimukthi0617/CGV-assignment-group-K.git
+```
+ 2. Install dependencies: 
+    ### Dependencies include :
+    - OpenCV
+    - pytesseract
+    - Pillow
+    - SpellChecker
+    - pandas
+    - matplotlib
+    - plotly
