@@ -24,23 +24,23 @@ This repository contains two Python scripts:
 
 ## Installation
 
-1. Clone the repository:
-```bash
-  git clone https://github.com/kalharawimukthi0617/CGV-assignment-group-K.git
-```
- 2. Install dependencies: 
-    ### Dependencies include :
-    - OpenCV
-    - pytesseract
-    - Pillow
-    - SpellChecker
-    - pandas
-    - matplotlib
-    - plotly
-  
-     ```bash
-      pip install opencv-python pytesseract Pillow pyspellchecker pandas matplotlib plotly
-    ```
+  1. Clone the repository:
+  ```bash
+    git clone https://github.com/kalharawimukthi0617/CGV-assignment-group-K.git
+  ```
+  2. Install dependencies: 
+      ### Dependencies include :
+      - OpenCV
+      - pytesseract
+      - Pillow
+      - SpellChecker
+      - pandas
+      - matplotlib
+      - plotly
+    
+       ```bash
+        pip install opencv-python pytesseract Pillow pyspellchecker pandas matplotlib plotly
+      ```
   3. Install Tesseract OCR:
      Tesseract is required for OCR (Optical Character Recognition).
      - For Windows,
@@ -53,5 +53,29 @@ This repository contains two Python scripts:
        ```bash
           brew install tesseract
        ```
-
+  4. Usage
+     ## Shop Bill Processing (shoper.py)
+     - Run the script with an image of a shop bill as the input:
+       ```bash
+          python shoper.py r1.png
+        ```
+       or
+       ```bash
+          python shoper.py r2.png
+        ```
+       or
+       ```bash
+          python shoper.py r3.png
+        ```
+       or
+       ```bash
+          python shoper.py r4.png
+        ```
+     ## Data Visualization (infovis.py)
+     - Run the visualization script after processing multiple receipts:
+       ```bash
+          python infovis.py
+        ```
+       
+       
       
